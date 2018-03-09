@@ -1,3 +1,19 @@
+animator-graph visualizer
+================================================================================
+See original code below.
+
+Steps for RoboTutor users:
+
+- Copy animator graphs into "ag/" folder (note that you must remove "//" comments)
+- Open "ag.html" file and change the `tutor` variable... Note that the file should match the JSON key inside `animatorMap`.
+- Run `npm run dev`. This should open your browser window.
+- Click "ag.html" to view your animator graph!
+
+
+
+
+
+
 cytoscape-dagre
 ================================================================================
 
