@@ -1,0 +1,132 @@
+<!DOCTYPE>
+
+<html>
+
+  <head>
+    <title>cytoscape-dagre.js demo</title>
+
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+
+    <script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js"></script>
+
+    <!-- for testing with local version of cytoscape.js -->
+    <!--<script src="../cytoscape.js/build/cytoscape.js"></script>-->
+
+    <script src="https://unpkg.com/dagre@0.7.4/dist/dagre.js"></script>
+    <script src="cytoscape-dagre.js"></script>
+
+    <style>
+      body {
+        font-family: helvetica;
+        font-size: 14px;
+      }
+
+      #cy {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        left: 0;
+        top: 0;
+        z-index: 999;
+      }
+
+      h1 {
+        opacity: 0.5;
+        font-size: 1em;
+      }
+    </style>
+
+    <script>
+      window.addEventListener('DOMContentLoaded', function(){
+
+        var cy = window.cy = cytoscape({
+          container: document.getElementById('cy'),
+
+          boxSelectionEnabled: false,
+          autounselectify: true,
+
+          layout: {
+            name: 'dagre'
+          },
+
+          style: [
+            {
+              selector: 'node',
+              style: {
+                  'background-color': '#11479e',
+                  'shape': 'barrel',
+                  'label': 'data(id)',
+                  'font-size': 5,
+                  'text-valign': 'center',
+                  'text-halign': 'center',
+                  'width': 'label',
+                  'height': 'label',
+                  'color': 'rgb(255, 255, 255)',
+                  'height': 10.0
+              },
+            }, {
+                
+                selector: 'label',
+                style: {
+                    'color': '#ff0000'
+                }
+            },
+            
+
+            {
+              selector: 'edge',
+              style: {
+                  'width': 4,
+                  'target-arrow-shape': 'triangle',
+                  'line-color': '#9dbaea',
+                  'target-arrow-color': '#9dbaea',
+                  'curve-style': 'bezier',
+                  'label': 'data(constraint)',
+                  'font-size': 5
+                  
+              }
+            }
+          ],
+
+          elements: {
+            nodes: [
+                { data: { id: 'INTRO_STATE' } },
+                { data: { id: 'UPDATE_STIMULUS' } },
+                { data: { id: 'USER_INPUT' } },
+                { data: { id: 'PLAY_CORRECT' } },
+                { data: { id: 'PLAY_WRONG' } },
+                { data: { id: 'CHECK_EOD' } },
+                { data: { id: 'FINAL_SCORE' } },
+                { data: { id: 'NEXT_SCENE' } }
+                
+            ],
+            edges: [
+                { data: { source: 'INTRO_STATE', target: 'UPDATE_STIMULUS' } },
+                { data: { source: 'UPDATE_STIMULUS', target: 'USER_INPUT' } },
+                { data: { source: 'USER_INPUT', target: 'PLAY_CORRECT', constraint: 'FTR_RIGHT' } },
+                { data: { source: 'USER_INPUT', target: 'PLAY_WRONG', constraint: '' } },
+                { data: { source: 'PLAY_CORRECT', target: 'FINAL_SCORE', constraint: 'FTR_EOD' } },
+                { data: { source: 'PLAY_CORRECT', target: 'UPDATE_STIMULUS', constraint: '' } },
+                { data: { source: 'PLAY_WRONG', target: 'CHECK_EOD', constraint: 'FTR_LASTATTEMPT' } },
+                { data: { source: 'PLAY_WRONG', target: 'USER_INPUT', constraint: '' } },
+                { data: { source: 'CHECK_EOD', target: 'FINAL_SCORE', constraint: 'FTR_EOD' } },
+                { data: { source: 'CHECK_EOD', target: 'UPDATE_STIMULUS', constraint: '' } },
+                { data: { source: 'FINAL_SCORE', target: 'NEXT_SCENE', constraint: '' } },
+                
+
+            ]
+          }
+        });
+
+      });
+    </script>
+  </head>
+
+  <body>
+    <h1>cytoscape-dagre demo</h1>
+
+    <div id="cy"></div>
+
+  </body>
+
+</html>
