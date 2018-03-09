@@ -37,93 +37,134 @@
     </style>
 
     <script>
-      window.addEventListener('DOMContentLoaded', function(){
 
-        var cy = window.cy = cytoscape({
-          container: document.getElementById('cy'),
+     function loadJSON(file, callback) {
+         var xobj = new XMLHttpRequest();
+         xobj.overrideMimeType("application/json");
+         xobj.open('GET', file, true);
+         xobj.onreadystatechange = function () {
+             if (xobj.readyState == 4 && xobj.status == "200") {
+                 callback(xobj.responseText);
+             }
+         };
+         xobj.send(null);
+     };
 
-          boxSelectionEnabled: false,
-          autounselectify: true,
+     function convertAGtoCY(ag_json, name) {
+         var a_map = ag_json["animatorMap"];
 
-          layout: {
-            name: 'dagre'
-          },
+         var ag = a_map[name];
 
-          style: [
-            {
-              selector: 'node',
-              style: {
-                  'background-color': '#11479e',
-                  'shape': 'barrel',
-                  'label': 'data(id)',
-                  'font-size': 5,
-                  'text-valign': 'center',
-                  'text-halign': 'center',
-                  'width': 'label',
-                  'height': 'label',
-                  'color': 'rgb(255, 255, 255)',
-                  'height': 10.0
-              },
-            }, {
-                
-                selector: 'label',
-                style: {
-                    'color': '#ff0000'
-                }
-            },
-            
+         console.log(a_map["COMMENT"]);
 
-            {
-              selector: 'edge',
-              style: {
-                  'width': 4,
-                  'target-arrow-shape': 'triangle',
-                  'line-color': '#9dbaea',
-                  'target-arrow-color': '#9dbaea',
-                  'curve-style': 'bezier',
-                  'label': 'data(constraint)',
-                  'font-size': 5
-                  
-              }
-            }
-          ],
+         var nodeMap = ag['nodeMap'];
 
-          elements: {
-            nodes: [
-                { data: { id: 'INTRO_STATE' } },
-                { data: { id: 'UPDATE_STIMULUS' } },
-                { data: { id: 'USER_INPUT' } },
-                { data: { id: 'PLAY_CORRECT' } },
-                { data: { id: 'PLAY_WRONG' } },
-                { data: { id: 'CHECK_EOD' } },
-                { data: { id: 'FINAL_SCORE' } },
-                { data: { id: 'NEXT_SCENE' } }
-                
-            ],
-            edges: [
-                { data: { source: 'INTRO_STATE', target: 'UPDATE_STIMULUS' } },
-                { data: { source: 'UPDATE_STIMULUS', target: 'USER_INPUT' } },
-                { data: { source: 'USER_INPUT', target: 'PLAY_CORRECT', constraint: 'FTR_RIGHT' } },
-                { data: { source: 'USER_INPUT', target: 'PLAY_WRONG', constraint: '' } },
-                { data: { source: 'PLAY_CORRECT', target: 'FINAL_SCORE', constraint: 'FTR_EOD' } },
-                { data: { source: 'PLAY_CORRECT', target: 'UPDATE_STIMULUS', constraint: '' } },
-                { data: { source: 'PLAY_WRONG', target: 'CHECK_EOD', constraint: 'FTR_LASTATTEMPT' } },
-                { data: { source: 'PLAY_WRONG', target: 'USER_INPUT', constraint: '' } },
-                { data: { source: 'CHECK_EOD', target: 'FINAL_SCORE', constraint: 'FTR_EOD' } },
-                { data: { source: 'CHECK_EOD', target: 'UPDATE_STIMULUS', constraint: '' } },
-                { data: { source: 'FINAL_SCORE', target: 'NEXT_SCENE', constraint: '' } },
-                
+         var agNodeKeys = Object.keys(nodeMap);
 
-            ]
-          }
-        });
+         console.log(agNodeKeys);
+
+         var cy_json = {
+             nodes: [],
+             edges: []
+         };
+
+         agNodeKeys.forEach(function(node_key) {
+             if(node_key == "COMMENT") return;
+             cy_json.nodes.push({
+                 data: { id: node_key }
+             });
+
+             var edges = nodeMap[node_key].edges;
+             edges.forEach(function(edge) {
+
+                 cy_json.edges.push({
+                     data: {
+                         source: node_key,
+                         target: edge.edge,
+                         constraint: edge.constraint
+                     }
+                 });
+             });
+         });
+
+         return cy_json;
+
+     };
+     
+     window.addEventListener('DOMContentLoaded', function(){
+
+         var tutor = 'word_copy'
+         loadJSON('ag/' + tutor + '.json', function(ag_text) {
+             var ag_json = JSON.parse(ag_text);
+             //console.log(ag_json.nodes);
+
+             var cy_json = convertAGtoCY(ag_json, tutor);
+
+             var cy = window.cy = cytoscape({
+                 container: document.getElementById('cy'),
+
+                 boxSelectionEnabled: false,
+                 autounselectify: true,
+
+                 layout: {
+                     name: 'dagre'
+                 },
+
+                 style: [
+                     {
+                         selector: 'node',
+                         style: {
+                             'background-color': '#11479e',
+                             'shape': 'barrel',
+                             'label': 'data(id)',
+                             'font-size': 5,
+                             'text-valign': 'center',
+                             'text-halign': 'center',
+                             'width': 'label',
+                             'height': 'label',
+                             'color': 'rgb(255, 255, 255)',
+                             'height': 10.0
+                         },
+                     }, 
+
+                     {
+                         selector: 'edge',
+                         style: {
+                             'width': 4,
+                             'target-arrow-shape': 'triangle',
+                             'line-color': '#9dbaea',
+                             'target-arrow-color': '#9dbaea',
+                             'curve-style': 'bezier',
+                             'label': 'data(constraint)',
+                             'font-size': 5
+                             
+                         }
+                     }
+                 ],
+
+                 elements: cy_json
+             });
+
+             cy.$('node').on('click', function(e) {
+                 var ele = e.target;
+                 console.log('clicked ' + ele.id());
+             });
+
+             document.getElementById("title").innerHTML = tutor;
+
+             
+         });
+
+
 
       });
+
+
     </script>
   </head>
 
   <body>
-    <h1>cytoscape-dagre demo</h1>
+    <h1 id="title">cytoscape-dagre demo</h1>
 
     <div id="cy"></div>
 
