@@ -98,7 +98,21 @@
      
      window.addEventListener('DOMContentLoaded', function(){
 
-         var tutor = 'word_copy'
+         console.log(window.location.href);
+
+         var regex = /[?&]([^=#]+)=([^&#]*)/g,
+             url = window.location.href,
+             params = {},
+             match;
+         while(match = regex.exec(url)) {
+             params[match[1]] = match[2];
+         }
+
+         var tutor = params.tutor ? params.tutor : 'bubble_pop';
+
+         console.log(params);
+         
+         //         var tutor = 'word_copy'
          loadJSON('ag/' + tutor + '.json', function(ag_text) {
              var ag_json = JSON.parse(ag_text);
              //console.log(ag_json.nodes);
