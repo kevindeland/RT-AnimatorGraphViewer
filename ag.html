@@ -75,7 +75,11 @@
              cy_json.nodes.push({
                  data: {
                      id: node_key,
-                     mapname: nodeMap[node_key]["mapname"]
+                     preenter: nodeMap[node_key]["preenter"],
+                     maptype: nodeMap[node_key]["maptype"],
+                     mapname: nodeMap[node_key]["mapname"],
+                     preexit: nodeMap[node_key]["preexit"]
+
                  }
              });
 
@@ -119,7 +123,9 @@
 
              var cy_json = convertAGtoCY(ag_json, tutor);
 
+             var queueMap  = ag_json['animatorMap'][tutor]['queueMap'];
              var moduleMap = ag_json['animatorMap'][tutor]['moduleMap'];
+             var actionMap = ag_json['animatorMap'][tutor]['actionMap'];
 
              var cy = window.cy = cytoscape({
                  container: document.getElementById('cy'),
@@ -168,22 +174,108 @@
 
              cy.$('node').on('click', function(e) {
                  var ele = e.target;
-                 console.log('clicked ' + ele.id());
+                 //console.log('clicked ' + ele.id());
 
-                 var mapname = ele.data('mapname');
-
-                 var tracks = moduleMap[mapname].tracks;
                  // how to make it pop up next to node???
                  // try this: https://github.com/cytoscape/cytoscape.js-popper
                  //document.getElementById("module").innerHTML = JSON.stringify(tracks);
-                 console.log(tracks);
+         
+                 document.getElementById("module").innerHTML = makeSequenceHTML(ele);
 
              });
 
              document.getElementById("title").innerHTML = tutor;
 
+
+             /**
+              * Creates an HTML object based on tracks executed in preeenter, map, and preexit.
+              */
+             function makeSequenceHTML(ele) {
+                 var html = '<ul>';
+             
+                 var preenter = ele.data('preenter');
+                 html += '<li style="color:green;">' + preenter + '</li>';
+         
+                 var mapname = ele.data('mapname');
+                 var maptype = ele.data('maptype');
+
+                 var tracks;
+                 switch(maptype) {
+
+                     case "actionMap":
+                         // actionMap only has one track
+                         tracks = actionMap[mapname];
+                         html += trackToHTML(tracks, "blue");
+                         break;
+
+                         
+                     case "moduleMap":
+                         // moduleMap has an array of tracks
+                         tracks = moduleMap[mapname].tracks;
+
+                         tracks.forEach(function(track) {
+                             console.log(track);
+                             html += trackToHTML(track, "blue");
+                         });
+
+                         break;
+                 }
+
+                 var preexit = ele.data('preexit');
+                 html += '<li style="color:green;">' + preexit + '</li>';
+
+                 html += '</ul>';
+
+                 return html;
+             };
+
+             /* put track in html form */
+             function trackToHTML(track, color) {
+                 var html = '<li style="color:' + color + ';">';
+
+                 console.log(track.type);
+                 switch(track.type) {
+                     case "COMMAND":
+                     case "QUEUEDCOMMAND":
+
+                         if (track.cmd) {
+                             html += track.cmd;
+                         } else {
+                             html += track.id + "." + track.method;
+
+                             // only log params for some special desired methods
+                             var LOG_PARAMS_METHODS = ['setVolatileBehavior',
+                                                       'setStickyBehavior',
+                                                       'post',
+                                                       'postEvent',
+                                                       'publishFeature'];
+                             
+                             if (LOG_PARAMS_METHODS.includes(track.method)) {
+                                 html += '(';
+                                 var parms = track.parms.split('|');
+                                 for (var i = 0; i < parms.length; i ++) {
+                                     html += parms[i].split(':')[0] + ',';
+                                 };
+                                 html = html.substring(0, html.length - 1);
+                                 html += ')';
+                                 
+                             }                   
+                         }
+                         break;
+
+                     case "AUDIO":
+                     case "QUEUEDAUDIO":
+                         html += track.command + ' "' + track.soundsource + '"';
+                 }
+
+                 html += '</li>';
+
+                 return html;
+             }
+
              
          });
+
 
 
 
