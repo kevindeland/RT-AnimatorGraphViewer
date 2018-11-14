@@ -7,6 +7,7 @@ Steps for RoboTutor users:
 - Pull this code
 - Copy new animator graphs into "ag/" folder (note that you must remove "//" comments or else the JSON.parse will fail). 
 - Rename any animator_graph.json files to "<tutor_name>.json" where <tutor_name> matches the name given in your animator graph.
+- Sample command to copy: `scp /Users/kevindeland/RoboTutor/RoboTutor/app/src/main/assets/tutors/bigmath/animator_graph.json ag/bigmath.json `
 - Run `npm run dev` and open your browser to "http://localhost:8081/ag.html?tutor=<tutor_name>", where <tutor_name> is one of the following:
   - activity_selector
   - akira

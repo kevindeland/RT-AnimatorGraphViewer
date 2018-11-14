@@ -1,0 +1,27 @@
+{
+    "nodes": [
+        { "data": { "id": "INTRO_STATE" } },
+        { "data": { "id": "UPDATE_STIMULUS" } },
+        { "data": { "id": "USER_INPUT" } },
+        { "data": { "id": "PLAY_CORRECT" } },
+        { "data": { "id": "PLAY_WRONG" } },
+        { "data": { "id": "CHECK_EOD" } },
+        { "data": { "id": "FINAL_SCORE" } },
+        { "data": { "id": "NEXT_SCENE" } }
+        
+    ],
+    "edges": [
+        { "data": { "source": "INTRO_STATE", "target": "UPDATE_STIMULUS" } },
+        { "data": { "source": "UPDATE_STIMULUS", "target": "USER_INPUT" } },
+        { "data": { "source": "USER_INPUT", "target": "PLAY_CORRECT", "constraint": "FTR_RIGHT" } },
+        { "data": { "source": "USER_INPUT", "target": "PLAY_WRONG", "constraint": "" } },
+        { "data": { "source": "PLAY_CORRECT", "target": "FINAL_SCORE", "constraint": "FTR_EOD" } },
+        { "data": { "source": "PLAY_CORRECT", "target": "UPDATE_STIMULUS", "constraint": "" } },
+        { "data": { "source": "PLAY_WRONG", "target": "CHECK_EOD", "constraint": "FTR_LASTATTEMPT" } },
+        { "data": { "source": "PLAY_WRONG", "target": "USER_INPUT", "constraint": "" } },
+        { "data": { "source": "CHECK_EOD", "target": "FINAL_SCORE", "constraint": "FTR_EOD" } },
+        { "data": { "source": "CHECK_EOD", "target": "UPDATE_STIMULUS", "constraint": "" } },
+        { "data": { "source": "FINAL_SCORE", "target": "NEXT_SCENE", "constraint": "" } }
+
+    ]
+}

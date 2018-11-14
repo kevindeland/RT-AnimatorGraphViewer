@@ -14,6 +14,7 @@
 
     <script src="https://unpkg.com/dagre@0.7.4/dist/dagre.js"></script>
     <script src="cytoscape-dagre.js"></script>
+    <script src="minify.json.js"></script>
 
     <style>
       body {
@@ -118,7 +119,9 @@
          
          //         var tutor = 'word_copy'
          loadJSON('ag/' + tutor + '.json', function(ag_text) {
-             var ag_json = JSON.parse(ag_text);
+             var matchHashComment = new RegExp(/(\/\/.*)/, 'gi');
+             var no_comments = ag_text.replace(matchHashComment, '');
+             var ag_json = JSON.parse(JSON.minify(no_comments));
              //console.log(ag_json.nodes);
 
              var cy_json = convertAGtoCY(ag_json, tutor);
