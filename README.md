@@ -1,11 +1,12 @@
 animator-graph visualizer
 ================================================================================
 
-Steps for RoboTutor users:
+#### Steps for RoboTutor users:
 
 - Install Node.js and npm [here](https://docs.npmjs.com/getting-started/installing-node)
-- Pull this code
-- Copy new animator graphs into "ag/" folder (note that you must remove "//" comments or else the JSON.parse will fail). 
+- Pull this repository
+- run `npm install`
+- Copy new animator graphs into "ag/" folder.
 - Rename any animator_graph.json files to "<tutor_name>.json" where <tutor_name> matches the name given in your animator graph.
 - Sample command to copy: `scp /Users/kevindeland/RoboTutor/RoboTutor/app/src/main/assets/tutors/bigmath/animator_graph.json ag/bigmath.json `
 - Run `npm run dev` and open your browser to "http://localhost:8081/ag.html?tutor=<tutor_name>", where <tutor_name> is one of the following:
@@ -19,7 +20,28 @@ Steps for RoboTutor users:
   - whatever tutor you have added
 
 
-See original code below.
+#### Steps for TED users:
+
+- Install Node.js and npm [here](https://docs.npmjs.com/getting-started/installing-node)
+- Pull this repository
+- run `npm install`
+- Copy tutor graphs into the "tg/" folder.
+Rename any tutorgraph.json files to "<tutorname>.json" where <tutorname> matches the name given in your tutorgraph.
+- Sample command to copy: `scp <pathto>/<reponame>/tutorgraph.json tg/<reponame>.json `
+- Run `npm run dev` and open your browser to "http://localhost:8081/tg.html?tutor=<tutor_name>", where <tutor_name> is one of the following:
+  - EFTED_Instr
+  - akira
+  - add_subtract
+  - bubble_pop
+  - countingx
+  - story_reading
+  - word_copy
+  - whatever tutor you have added
+  
+Example: http://localhost:8080/tg.html?tutor=EFTED_Instr
+
+
+See original code documentation below.
 
 
 

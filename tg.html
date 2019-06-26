@@ -1,0 +1,265 @@
+<!DOCTYPE>
+
+<html>
+
+  <head>
+    <title>cytoscape-dagre.js demo</title>
+
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+
+    <script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js"></script>
+
+    <!-- for testing with local version of cytoscape.js -->
+    <!--<script src="../cytoscape.js/build/cytoscape.js"></script>-->
+
+    <script src="https://unpkg.com/dagre@0.7.4/dist/dagre.js"></script>
+    <script src="cytoscape-dagre.js"></script>
+    <script src="minify.json.js"></script>
+
+    <style>
+      body {
+        font-family: helvetica;
+        font-size: 14px;
+      }
+
+      #cy {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        left: 0;
+        top: 0;
+        z-index: 999;
+      }
+
+      h1 {
+        opacity: 0.5;
+        font-size: 1em;
+      }
+    </style>
+
+    <script>
+
+     // code found here
+     // https://codepen.io/KryptoniteDove/post/load-json-file-locally-using-pure-javascript
+     function loadJSON(file, callback) {
+         var xobj = new XMLHttpRequest();
+         xobj.overrideMimeType("application/json");
+         xobj.open('GET', file, true);
+         xobj.onreadystatechange = function () {
+             if (xobj.readyState == 4 && xobj.status == "200") {
+                 callback(xobj.responseText);
+             }
+         };
+         xobj.send(null);
+     };
+
+     function convertAGtoCY(tg_json, name) {
+         let ag = tg_json;
+
+         console.log(ag["COMMENT"]);
+
+         var nodeMap = ag['CNodes'];
+
+         var nodeKeys = Object.keys(nodeMap);
+
+         console.log(nodeKeys);
+
+         var cy_json = {
+             nodes: [],
+             edges: []
+         };
+
+         nodeKeys.forEach(function(node_key) {
+             if(node_key === "COMMENT") return;
+             cy_json.nodes.push({
+                 data: {
+                     id: node_key,
+                     type: nodeMap[node_key]["type"],
+                     link: nodeMap[node_key]["link"]
+                 }
+             });
+
+             var edges = nodeMap[node_key].edges;
+             if (edges) {
+                 edges.forEach(function(edge) {
+
+                     cy_json.edges.push({
+                         data: {
+                             source: node_key,
+                             target: edge.edge,
+                             constraint: edge.constraint
+                         }
+                     });
+                 });
+             }
+         });
+
+         return cy_json;
+
+     };
+     
+     window.addEventListener('DOMContentLoaded', function(){
+
+         console.log(window.location.href);
+
+         var regex = /[?&]([^=#]+)=([^&#]*)/g,
+             url = window.location.href,
+             params = {},
+             match;
+         while(match = regex.exec(url)) {
+             params[match[1]] = match[2];
+         }
+
+         var tutor = params.tutor ? params.tutor : 'EFTED_Instr';
+
+         console.log(params);
+         
+         //         var tutor = 'word_copy'
+         loadJSON('tg/' + tutor + '.json', function(ag_text) {
+             var matchHashComment = new RegExp(/(\/\/.*)/, 'gi');
+             var no_comments = ag_text.replace(matchHashComment, '');
+             var ag_json = JSON.parse(JSON.minify(no_comments));
+             //console.log(ag_json.nodes);
+
+             var cy_json = convertAGtoCY(ag_json, tutor);
+
+             //var queueMap  = ag_json['animatorMap'][tutor]['queueMap'];
+             var CModules = ag_json['CModules'];
+             var CActions = ag_json['CActions'];
+
+             var cy = window.cy = cytoscape({
+                 container: document.getElementById('cy'),
+
+                 boxSelectionEnabled: false,
+                 autounselectify: true,
+
+                 layout: {
+                     name: 'dagre'
+                 },
+
+                 style: [
+                     {
+                         selector: 'node',
+                         style: {
+                             'background-color': '#11479e',
+                             'shape': 'barrel',
+                             'label': 'data(id)',
+                             'font-size': 5,
+                             'text-valign': 'center',
+                             'text-halign': 'center',
+                             'width': 'label',
+                             'height': 'label',
+                             'color': 'rgb(255, 255, 255)',
+                             'height': 10.0
+                         },
+                     }, 
+
+                     {
+                         selector: 'edge',
+                         style: {
+                             'width': 4,
+                             'target-arrow-shape': 'triangle',
+                             'line-color': '#9dbaea',
+                             'target-arrow-color': '#9dbaea',
+                             'curve-style': 'bezier',
+                             'label': 'data(constraint)',
+                             'font-size': 5
+                             
+                         }
+                     }
+                 ],
+
+                 elements: cy_json
+             });
+
+             cy.$('node').on('click', function(e) {
+                 var ele = e.target;
+                 //console.log('clicked ' + ele.id());
+
+                 // how to make it pop up next to node???
+                 // try this: https://github.com/cytoscape/cytoscape.js-popper
+                 //document.getElementById("module").innerHTML = JSON.stringify(tracks);
+         
+                 document.getElementById("module").innerHTML = makeSequenceHTML(ele);
+
+             });
+
+             document.getElementById("title").innerHTML = tutor;
+
+
+             /**
+              * Creates an HTML object based on tracks executed in preeenter, map, and preexit.
+              */
+             function makeSequenceHTML(ele) {
+                 var html = '';
+         
+                 var type = ele.data('type');
+                 console.log(type);
+                 var link = ele.data('link');
+                 console.log(link);
+
+                 var scenes;
+                 switch(type) {
+
+                     case "actionMap":
+                         // actionMap only has one track
+                         scenes = CActions[mapname];
+                         html += sceneToHTML(scenes, "blue");
+                         break;
+
+                         
+                     case "module":
+                         // moduleMap has an array of tracks
+                         html += '<h3>' + ele.data('id') + '</h3>';
+                         html += '<ul>';
+                         scenes = CModules[link].scenes;
+
+                         scenes.forEach(function(track) {
+                             console.log(track);
+                             html += sceneToHTML(track, "blue");
+                         });
+                         html += '</ul>';
+
+                         break;
+                 }
+
+                 return html;
+             };
+
+             /* put scene in html form */
+             function sceneToHTML(scene, color) {
+                 var html = '<li style="color:' + color + ';">';
+
+                 console.log(scene.name);
+                 html += scene.name;
+                 html += " -- " + scene.classname;
+
+                 html += '</li>';
+
+                 return html;
+             }
+
+             
+         });
+
+
+
+
+      });
+
+
+    </script>
+  </head>
+
+  <body>
+    <h1 id="title">cytoscape-dagre demo</h1>
+
+    <div id="cy"></div>
+
+    <div id="module">
+        
+    </div>
+
+  </body>
+
+</html>

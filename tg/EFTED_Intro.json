@@ -1,0 +1,200 @@
+{
+	"type":"graph",
+	"history":"volatile",
+    "name":"TED Final",
+    
+	"hostModule":"EFMod_TEDIntro",
+	"version":"0.1.0",
+	
+
+	"CNodes":
+	{	
+		"COMMENT":"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@  CNodes  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",
+
+				
+					
+		"_nav":{"COMMENT":"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Navigation Components preload node - used to force nav scene creation %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%***",
+				"type":"module",
+				"link":"base",
+				"edges":
+						[
+						]
+				},
+			
+		"root":{"COMMENT":"Standard Start Screen",
+				"type":"module", 
+				"link":"start",
+				"edges":
+						[													
+							{"constraint":"","edge":"END_CLOAK"}							
+						]
+				},
+
+		"END_CLOAK":{ "COMMENT":"End Cloak - Allows LogManager to gracefully shutdown the session",
+					"type":"module", 
+					"link":"END_CLOAK",
+					"edges":
+							[
+							]
+					}					
+	},		
+		
+	"CModules":
+	{		
+		"COMMENT":"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@  CModules  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",
+	
+		"base":
+		{
+			"instanceNode":"",
+			"reuse":true,			
+			"scenes":		
+			[
+				{"title":"", "page":"", "name":"SNavigator",   "classname":"EFMod_TEDIntro.Navigator", "features":"null", "enqueue":"false" , "create":"true" , "visible":"true", "persist":"false", "ischeckpnt":"true", "object":"null"}
+			]
+		},	
+			
+		"start":
+		{
+			"instanceNode":"",
+			"reuse":true,
+			"scenes":		
+			[
+                {"title":"WEB Start Page- Audio Requirement", "page":"", "name":"SSceneStart"  , "classname":"EFMod_TEDIntro.SceneStart",    "features":"FTR_WEB", "enqueue":"true", "create":"false", "persist":"false", "ischeckpnt":"true", "object":"null"},
+
+				{"title":"Start of Tutor", "page":"", "name":"SScene1"   , "classname":"EFMod_TEDIntro.TedIntro", "features":"", "enqueue":"true", "create":"false", "persist":"false", "ischeckpnt":"true", "object":"null"}
+			]
+		},
+	
+		"END_CLOAK":
+		{
+			"instanceNode":"",
+			"reuse":true,
+			"scenes":		
+			[	
+				{"title":"", "page":"", "name":"SSceneEnd"  , "classname":"EFMod_TEDIntro.SceneEnd", "features":"" , "enqueue":"true", "create":"false", "persist":"false", "ischeckpnt":"true", "object":"null"}
+			]
+		}		
+		
+	},
+
+	"CModuleGroups":
+	{
+		"COMMENT":"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@  CModuleGroups  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",
+	
+		"solcom-modgrp":
+		{
+			"instanceNode":"",
+			"type":"seqtype",
+			"start":"0",
+			"show":"1",
+			"reuse":true,
+			"onempty":"na",
+			
+			"modules":
+			[
+				{"instanceNode":"", "name":"SOLCOM_A"},
+				{"instanceNode":"", "name":"SOLCOM_B"},
+				{"instanceNode":"", "name":"SOLCOM_C"}
+			]
+        }
+	},
+
+
+	"CActions":
+	{
+		"COMMENT":"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@  CActions  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",
+	
+		"act0":{"cmd":"assertFeature",
+			    "parms":
+					[
+						"FTR_RIGHT"
+					]},
+					
+		"act1":{"cmd":"retractFeature",
+				"parms":
+					[
+						"FTR_RIGHT"
+					]}
+	},
+	
+	"CConstraints":
+	{
+		"COMMENT":"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@  CConstraints  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",
+			
+		"FTR_PRETEST":{"cmd":"test", "code":"FTR_PRETEST"},
+		"SKILL_R0_FAIL" :{"cmd":"exec","code":"{return (gTutor.ktSkills['rule0'].queryBelief() < 0.93);}"},
+		"q6B_NOCHECKED":{"cmd":"exec","code":"return gTutor['Sq6p1_B'].q6Check2.getChecked();"}
+	},
+
+	"CSubGraphs":
+	{
+		"COMMENT":"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@  CSubGraphs  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+			
+	},
+	
+	
+	"CExternals":
+	{
+		"COMMENT":"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@  CExternals  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+	},
+	
+	
+	"CSkills":
+	{
+		"COMMENT":"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@  CSkills  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",
+	
+		"rule0":
+		{
+			"description":"Identify Target variable",
+			"pL": 0.125,
+			"pT": 0.046667,
+			"pG": 0.1,
+			"pS": 0.1
+		},
+		"rule1":
+		{
+			"description":"Vary target variable",
+			"pL": 0.250,
+			"pT": 0.041667,
+			"pG": 0.1,
+			"pS": 0.1
+		},
+		"rule2":
+		{
+			"description":"Control non-target variables",
+			"pL": 0.05,
+			"pT": 0.06,
+			"pG": 0.1,
+			"pS": 0.1
+		},
+		"rule_vvfar":
+		{
+			"description":"Vary Variable for any reason",
+			"pL": 0.5,
+			"pT": 0.213333,
+			"pG": 0.1,
+			"pS": 0.1
+		},
+		"rule_tov":
+		{
+			"description":"Test one variable at a time",
+			"pL": 0.03,
+			"pT": 0.046667,
+			"pG": 0.1,
+			"pS": 0.1
+		},
+		"rule_cvslog":
+		{
+			"description":"Full CS Logic - R-0,1,2",
+			"pL": 0.03,
+			"pT": 0.03,
+			"pG": 0.1,
+			"pS": 0.1
+		}
+	}
+		
+		
+}
+
+
+
